@@ -1,0 +1,106 @@
+{
+    "kind": "Listing",
+    "data": {
+        "modhash": "[redacted]",
+        "children": [
+            {
+                "kind": "t3",
+                "data": {
+                    "contest_mode": false,
+                    "banned_by": null,
+                    "media_embed": {},
+                    "subreddit": "[redacted]",
+                    "selftext_html": null,
+                    "selftext": "",
+                    "likes": true,
+                    "suggested_sort": null,
+                    "user_reports": [],
+                    "secure_media": null,
+                    "link_flair_text": null,
+                    "id": "[redacted]",
+                    "gilded": 0,
+                    "secure_media_embed": {},
+                    "clicked": false,
+                    "score": 155,
+                    "report_reasons": null,
+                    "author": "[redacted]",
+                    "saved": false,
+                    "mod_reports": [],
+                    "name": "[redacted]",
+                    "subreddit_name_prefixed": "r/[redacted]",
+                    "approved_by": null,
+                    "over_18": false,
+                    "domain": "[redacted]",
+                    "hidden": false,
+                    "preview": {
+                        "images": [
+                            {
+                                "source": {
+                                    "url": "[redacted]",
+                                    "width": 0,
+                                    "height": 0
+                                },
+                                "resolutions": [
+                                    {
+                                        "url": "[redacted]",
+                                        "width": 0,
+                                        "height": 0
+                                    },
+                                    {
+                                        "url": "[redacted]",
+                                        "width": 0,
+                                        "height": 0
+                                    },
+                                    {
+                                        "url": "[redacted]",
+                                        "width": 0,
+                                        "height": 0
+                                    },
+                                    {
+                                        "url": "[redacted]",
+                                        "width": 0,
+                                        "height": 0
+                                    }
+                                ],
+                                "variants": {},
+                                "id": "[redacted]"
+                            }
+                        ],
+                        "enabled": true
+                    },
+                    "thumbnail": "[redacted]",
+                    "subreddit_id": "[redacted]",
+                    "edited": false,
+                    "link_flair_css_class": null,
+                    "author_flair_css_class": "[redacted]",
+                    "downs": 0,
+                    "brand_safe": false,
+                    "archived": false,
+                    "removal_reason": null,
+                    "post_hint": "[redacted]",
+                    "is_self": false,
+                    "hide_score": false,
+                    "spoiler": false,
+                    "permalink": "[redacted]",
+                    "num_reports": null,
+                    "locked": false,
+                    "stickied": false,
+                    "created": 0,
+                    "url": "[redacted]",
+                    "author_flair_text": "[redacted]",
+                    "quarantine": false,
+                    "title": "[redacted]",
+                    "created_utc": 0,
+                    "distinguished": null,
+                    "media": null,
+                    "num_comments": 0,
+                    "visited": false,
+                    "subreddit_type": "public",
+                    "ups": 0
+                }
+            }
+        ],
+        "after": "[redacted]",
+        "before": null
+    }
+}
