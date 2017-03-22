@@ -19,6 +19,7 @@ pub fn login() -> Result<String, LoginError>
         scope = "history");
     
     println!("please open this URL in your browser: {}", oauth_url);
+    println!("when you have been redirected, please paste the redirect url here:");
 
     let input =
     {
@@ -30,8 +31,9 @@ pub fn login() -> Result<String, LoginError>
         }
     };
 
-    let code =
+    let (err, code) =
     {
+        let mut e = None;
         let mut c = None;
         for pair in match url::Url::parse(&input)
         {
@@ -43,9 +45,25 @@ pub fn login() -> Result<String, LoginError>
             {
                 c = Some((pair.1).clone())
             }
+            else if pair.0 == "error"
+            {
+                e = Some((pair.1).clone())
+            }
         }
-        c
+        (e, c)
     };
+
+    if let Some(s) = err
+    {
+        if e == "access_denied"
+        {
+            return Err(LoginError::AccessDenied)
+        }
+        else
+        {
+            return Err(LoginError::OtherAuthError)
+        }
+    }
 
     if let Some(s) = code
     {
@@ -62,4 +80,6 @@ pub enum LoginError
     InputError,
     UrlParseError,
     NoCodeInUrl,
+    AccessDenied,
+    OtherAuthError,
 }
