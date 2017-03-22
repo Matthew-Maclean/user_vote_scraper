@@ -5,7 +5,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str) -> Resul
     unimplemented!()
 }
 
-pub fn scrap_posts(client: &hyper::Client, token: &str, user: &str) -> Result<Vec<(String, Vote)>, ()>
+pub fn scrape_posts(client: &hyper::Client, token: &str, user: &str) -> Result<Vec<(String, Vote)>, ()>
 {
     unimplemented!()
 }
