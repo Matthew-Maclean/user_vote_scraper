@@ -4,8 +4,9 @@ extern crate rustc_serialize;
 extern crate url;
 
 mod login;
+mod scrape;
 
 fn main()
 {
-    
+
 }
