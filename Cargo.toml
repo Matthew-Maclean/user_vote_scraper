@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Matthew"]
 
 [dependencies]
+hyper = "0.10.5"
+hyper-native-tls = "0.2.2"
+open = "1.2.0"
