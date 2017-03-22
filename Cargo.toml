@@ -7,3 +7,4 @@ authors = ["Matthew"]
 hyper = "0.10.5"
 hyper-native-tls = "0.2.2"
 open = "1.2.0"
+rustc-serialize = "0.3"
