@@ -10,7 +10,7 @@ pub fn get_code() -> Result<String, CodeError>
     let oauth_url = format!("https://www.reddit.com/api/v1/authorize\
         ?client_id={client_id}\
         &response_type={response_type}\
-        &state={state}
+        &state={state}\
         &redirect_uri={uri}\
         &duration={duration}\
         &scope={scope}",
@@ -78,7 +78,7 @@ pub fn get_code() -> Result<String, CodeError>
     }
 }
 
-pub fn get_token(code: String, client: hyper::Client) -> Result<String, TokenError>
+pub fn get_token(code: &str, client: &hyper::Client) -> Result<String, TokenError>
 {
     let post_url = "https://www.reddit.com/api/v1/access_token";
     let post_body = format!("grant_type={grant_type}\
