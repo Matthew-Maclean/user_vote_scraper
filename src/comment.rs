@@ -204,7 +204,6 @@ impl Comment
     }
 
     // this function only works if reddit.com/api/info returns items in the same order you send them, which I have not confirmed
-    #[allow(dead_code)]
     pub fn get_permalinks(comments: Vec<Comment>) -> Vec<String>
     {
         comments.into_iter().map(|c| format!("https://www.reddit.com/comments/{link}/_/{id}", link = c.link_id[3..c.link_id.len()].to_owned(), id = c.id)).collect()
