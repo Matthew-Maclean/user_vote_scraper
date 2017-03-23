@@ -21,7 +21,7 @@ pub fn get_code() -> Result<String, CodeError>
         duration = "temporary",
         scope = "history");
     
-    println!("please open this URL in your browser: {}", oauth_url);
+    println!("please open this URL in your browser:\n\n    {}\n", oauth_url);
     println!("when you have been redirected, please paste the redirect url here:");
 
     let input =
