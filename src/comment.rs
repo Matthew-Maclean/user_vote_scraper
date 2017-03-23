@@ -9,8 +9,8 @@ use scrape_error::ScrapeError;
 #[derive(Clone)]
 pub struct Comment
 {
-    link: String,
-    vote: Vote,
+    pub link: String,
+    pub vote: Vote,
 }
 
 impl Comment
@@ -63,19 +63,9 @@ impl Comment
 
             let after_tmp = match json.find("data").and_then(|x| x.find("after")).and_then(|x| x.as_string())
             {
-                Some(s) => s.to_owned(),
-                None => break
+                Some(s) => Some(s.to_owned()),
+                None => None
             };
-
-            if let Some(id) = after
-            {
-                if id == after_tmp
-                {
-                    break;
-                }
-            }
-
-            after = Some(after_tmp);
 
             let handle = thread::spawn(move ||
             {
@@ -122,6 +112,30 @@ impl Comment
             });
 
             threads.push(handle);
+
+            if let None = after_tmp
+            {
+                break;
+            }
+
+            if let Some(prev_id) = after
+            {
+                if let Some(new_id) = after_tmp
+                {
+                    if prev_id == new_id
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        after = Some(new_id);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             let remaining = match res.headers.get_raw("X-Ratelimit-Remaining")
             {

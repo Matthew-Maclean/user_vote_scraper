@@ -9,8 +9,8 @@ use scrape_error::ScrapeError;
 #[derive(Clone)]
 pub struct Post
 {
-    link: String,
-    vote: Vote
+    pub link: String,
+    pub vote: Vote
 }
 
 impl Post
@@ -34,7 +34,14 @@ impl Post
             h
         };
 
-        let url_base = format!("https://oauth.reddit.com/user/{user}/submitted/.json?limit=100", user = user);
+        let url_base = if limit > 100
+        {
+            format!("https://oauth.reddit.com/user/{user}/submitted/.json?limit=100", user = user)
+        }
+        else
+        {
+            format!("https://oauth.reddit.com/user/{user}/submitted/.json?limit={limit}", user = user, limit=limit)
+        };
 
         let mut count: i32 = 0;
         let mut after: Option<String> = None;
@@ -63,19 +70,11 @@ impl Post
 
             let after_tmp = match json.find("data").and_then(|x| x.find("after")).and_then(|x| x.as_string())
             {
-                Some(s) => s.to_owned(),
-                None => break
+                Some(s) => Some(s.to_owned()),
+                None => None
             };
 
-            if let Some(id) = after
-            {
-                if id == after_tmp
-                {
-                    break;
-                }
-            }
-
-            after = Some(after_tmp);
+            println!("after_tmp: {:?}", after_tmp);
 
             let handle = thread::spawn(move ||
             {
@@ -114,6 +113,30 @@ impl Post
             });
 
             threads.push(handle);
+
+            if let None = after_tmp
+            {
+                break;
+            }
+
+            if let Some(prev_id) = after
+            {
+                if let Some(new_id) = after_tmp
+                {
+                    if prev_id == new_id
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        after = Some(new_id);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             let remaining = match res.headers.get_raw("X-Ratelimit-Remaining")
             {
