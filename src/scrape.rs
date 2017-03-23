@@ -161,7 +161,22 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
         count += 100;
     }
 
-    unimplemented!()
+    let mut comments = Vec::new();
+
+    for thread in threads.into_iter()
+    {
+        match thread.join()
+        {
+            Ok(result) => match result
+            {
+                Ok(mut v) => comments.append(&mut v),
+                Err(e) => return Err(e)
+            },
+            Err(_) => return Err(ScrapeError::OtherError)
+        }
+    }
+
+    Ok(comments)
 }
 
 pub fn scrape_posts(client: &hyper::Client, token: &str, user: &str) -> Result<Vec<(String, Vote)>, ScrapeError>
