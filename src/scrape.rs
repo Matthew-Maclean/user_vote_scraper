@@ -4,6 +4,7 @@ use rustc_serialize;
 use std::thread;
 use std::io::Read;
 
+// TODO: clean up this fucking garbage function
 #[allow(dead_code)]
 pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i32) -> Result<Vec<(String, Vote)>, ScrapeError>
 {
@@ -18,10 +19,13 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                 }
             )
         );
+        h.set(
+            hyper::header::UserAgent("windows: user_vote_scraper (pre-alpha)".to_owned())
+        );
         h
     };
 
-    let url_base = format!("https://oauth.reddit.com/user/{user}/comments/.json/?limit=100", user = user);
+    let url_base = format!("https://oauth.reddit.com/user/{user}/comments/.json?limit=100", user = user);
 
     let mut count: i32 = 0;
     let mut after: Option<String> = None;
@@ -42,7 +46,6 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
             Ok(r) => r,
             Err(_) => return Err(ScrapeError::SendError)
         };
-
         let json = match rustc_serialize::json::Json::from_reader(&mut res)
         {
             Ok(j) => j,
@@ -52,7 +55,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
         let after_tmp = match json.find("data").and_then(|x| x.find("after")).and_then(|x| x.as_string())
         {
             Some(s) => s.to_owned(),
-            None => return Err(ScrapeError::JsonError)
+            None => break
         };
 
         if let Some(id) = after
@@ -93,7 +96,6 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                     voted.push((id, vote));
                 }
             }
-
             Ok(voted)
         });
 
@@ -115,7 +117,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                     Err(_) => return Err(ScrapeError::LimitHeaderError)
                 };
 
-                let num = match string.parse::<i32>()
+                let num = match string.parse::<f64>()
                 {
                     Ok(n) => n,
                     Err(_) => return Err(ScrapeError::LimitHeaderError)
@@ -126,7 +128,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
             None => return Err(ScrapeError::LimitHeaderError)
         };
 
-        if remaining < 2
+        if remaining < 2.0
         {
             let reset = match res.headers.get_raw("X-Ratelimit-Reset")
             {
@@ -144,7 +146,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                         Err(_) => return Err(ScrapeError::ResetHeaderError)
                     };
 
-                    let num = match string.parse::<i32>()
+                    let num = match string.parse::<f64>()
                     {
                         Ok(n) => n,
                         Err(_) => return Err(ScrapeError::ResetHeaderError)
@@ -157,7 +159,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
 
             thread::sleep(::std::time::Duration::from_secs(reset as u64));
         }
-
+        
         count += 100;
     }
 
@@ -172,23 +174,41 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                 Ok(mut v) => comments.append(&mut v),
                 Err(e) => return Err(e)
             },
-            Err(_) => return Err(ScrapeError::OtherError)
+            Err(e) =>
+            {
+                return Err(ScrapeError::OtherError)
+            }
         }
     }
 
     Ok(comments)
 }
 
+#[allow(dead_code)]
 pub fn scrape_posts(client: &hyper::Client, token: &str, user: &str) -> Result<Vec<(String, Vote)>, ScrapeError>
 {
     unimplemented!()
 }
+
+use std::fmt;
 
 #[derive(Copy, Clone)]
 pub enum Vote
 {
     Up,
     Down
+}
+
+impl fmt::Display for Vote
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        match self
+        {
+            &Vote::Up => write!(f, "up vote"),
+            &Vote::Down => write!(f, "down vote")
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -199,4 +219,19 @@ pub enum ScrapeError
     ResetHeaderError,
     JsonError,
     OtherError,
+}
+
+impl fmt::Display for ScrapeError
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        match self
+        {
+            &ScrapeError::SendError => write!(f, "Error while sending GET to reddit"),
+            &ScrapeError::LimitHeaderError => write!(f, "Error while parsing limit header"),
+            &ScrapeError::ResetHeaderError => write!(f, "Error while parsing reset header"),
+            &ScrapeError::JsonError => write!(f, "Error somewhere in the JSON response"),
+            &ScrapeError::OtherError => write!(f, "Another type of error has occured")
+        }
+    }
 }
