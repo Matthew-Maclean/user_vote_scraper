@@ -9,8 +9,7 @@ use scrape_error::ScrapeError;
 #[derive(Clone)]
 pub struct Comment
 {
-    id: String,
-    link_id: String,
+    link: String,
     vote: Vote,
 }
 
@@ -92,7 +91,7 @@ impl Comment
                 {
                     if let Some(b) = comment.find("data").and_then(|x| x.find("likes")).and_then(|x| x.as_boolean())
                     {
-                        let link = match comment.find("data").and_then(|x| x.find("link_id")).and_then(|x| x.as_string())
+                        let link_id = match comment.find("data").and_then(|x| x.find("link_id")).and_then(|x| x.as_string())
                         {
                             Some(s) => s.to_owned(),
                             None => return Err(ScrapeError::JsonError)
@@ -104,6 +103,8 @@ impl Comment
                             None => return Err(ScrapeError::JsonError)
                         };
 
+                        let link = format!("https://www.reddit.com/comments/{link}/_/{id}", link = link_id, id = id);
+
                         let vote = match b
                         {
                             true => Vote::Up,
@@ -112,8 +113,7 @@ impl Comment
 
                         voted.push(Comment
                         {
-                            id: id,
-                            link_id: link,
+                            link: link,
                             vote: vote
                         });
                     }
@@ -201,11 +201,5 @@ impl Comment
         }
 
         Ok(comments)
-    }
-
-    // this function only works if reddit.com/api/info returns items in the same order you send them, which I have not confirmed
-    pub fn get_permalinks(comments: Vec<Comment>) -> Vec<String>
-    {
-        comments.into_iter().map(|c| format!("https://www.reddit.com/comments/{link}/_/{id}", link = c.link_id[3..c.link_id.len()].to_owned(), id = c.id)).collect()
     }
 }
