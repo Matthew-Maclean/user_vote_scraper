@@ -2,7 +2,6 @@ use hyper;
 use rustc_serialize;
 
 use std::thread;
-use std::io::Read;
 
 // TODO: clean up this fucking garbage function
 #[allow(dead_code)]
@@ -117,7 +116,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
                     Err(_) => return Err(ScrapeError::LimitHeaderError)
                 };
 
-                let num = match string.parse::<f64>()
+                let num = match string.parse::<f64>() // why is the number of remaining requests a real number? I have no idea
                 {
                     Ok(n) => n,
                     Err(_) => return Err(ScrapeError::LimitHeaderError)
@@ -159,7 +158,7 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
 
             thread::sleep(::std::time::Duration::from_secs(reset as u64));
         }
-        
+
         count += 100;
     }
 
