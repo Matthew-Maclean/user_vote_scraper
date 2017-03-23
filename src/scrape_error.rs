@@ -1,34 +1,4 @@
-use hyper;
-use rustc_serialize;
-
-use std::thread;
-
-#[allow(dead_code)]
-pub fn scrape_posts(client: &hyper::Client, token: &str, user: &str) -> Result<Vec<(String, Vote)>, ScrapeError>
-{
-    unimplemented!()
-}
-
 use std::fmt;
-
-#[derive(Copy, Clone)]
-pub enum Vote
-{
-    Up,
-    Down
-}
-
-impl fmt::Display for Vote
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-    {
-        match self
-        {
-            &Vote::Up => write!(f, "up vote"),
-            &Vote::Down => write!(f, "down vote")
-        }
-    }
-}
 
 #[derive(Copy, Clone)]
 pub enum ScrapeError

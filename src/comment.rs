@@ -3,6 +3,9 @@ use rustc_serialize;
 
 use std::thread;
 
+use vote::Vote;
+use scrape_error::ScrapeError;
+
 #[derive(Clone)]
 pub struct Comment
 {

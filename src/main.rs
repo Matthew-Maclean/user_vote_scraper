@@ -4,7 +4,9 @@ extern crate rustc_serialize;
 extern crate url;
 
 mod login;
-mod scrape;
+mod vote;
+mod comment;
+mod scrape_error;
 
 fn main()
 {
