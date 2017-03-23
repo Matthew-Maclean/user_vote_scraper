@@ -5,7 +5,7 @@ use std::thread;
 
 // TODO: clean up this fucking garbage function
 #[allow(dead_code)]
-pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i32) -> Result<Vec<(String, Vote)>, ScrapeError>
+pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i32) -> Result<Vec<Comment>, ScrapeError>
 {
     let headers =
     {
@@ -81,18 +81,30 @@ pub fn scrape_comments(client: &hyper::Client, token: &str, user: &str, limit: i
             {
                 if let Some(b) = comment.find("data").and_then(|x| x.find("likes")).and_then(|x| x.as_boolean())
                 {
+                    let link = match comment.find("data").and_then(|x| x.find("link_id")).and_then(|x| x.as_string())
+                    {
+                        Some(s) => s.to_owned(),
+                        None => return Err(ScrapeError::JsonError)
+                    };
+
                     let id = match comment.find("data").and_then(|x| x.find("id")).and_then(|x| x.as_string())
                     {
                         Some(s) => s.to_owned(),
                         None => return Err(ScrapeError::JsonError)
                     };
+
                     let vote = match b
                     {
                         true => Vote::Up,
                         false => Vote::Down
                     };
 
-                    voted.push((id, vote));
+                    voted.push(Comment
+                    {
+                        id: id,
+                        link_id: link,
+                        vote: vote
+                    });
                 }
             }
             Ok(voted)
@@ -190,6 +202,14 @@ pub fn scrape_posts(client: &hyper::Client, token: &str, user: &str) -> Result<V
 }
 
 use std::fmt;
+
+#[derive(Clone)]
+pub struct Comment
+{
+    id: String,
+    link_id: String,
+    vote: Vote,
+}
 
 #[derive(Copy, Clone)]
 pub enum Vote
