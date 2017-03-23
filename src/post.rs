@@ -11,11 +11,11 @@ pub struct Post
 {
     link: String,
     vote: Vote
-};
+}
 
 impl Post
 {
-    pub fn scrape(client: &hyper::Client, token: &str, user: &str, limit: i32) -> Result<Vec<Comment>, ScrapeError>
+    pub fn scrape(client: &hyper::Client, token: &str, user: &str, limit: i32) -> Result<Vec<Post>, ScrapeError>
     {
         let headers =
         {

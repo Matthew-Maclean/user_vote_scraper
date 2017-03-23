@@ -6,9 +6,10 @@ extern crate url;
 mod login;
 mod vote;
 mod comment;
+mod post;
 mod scrape_error;
 
 fn main()
 {
-    
+
 }
