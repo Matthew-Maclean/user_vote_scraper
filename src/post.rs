@@ -211,7 +211,7 @@ impl Post
                     Ok(mut v) => posts.append(&mut v),
                     Err(e) => return Err(e)
                 },
-                Err(e) => return Err(ScrapeError::OtherError)
+                Err(_) => return Err(ScrapeError::OtherError)
             }
         }
 
