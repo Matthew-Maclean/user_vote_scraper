@@ -93,7 +93,7 @@ impl Comment
                             None => return Err(ScrapeError::JsonError)
                         };
 
-                        let link = format!("https://www.reddit.com/comments/{link}/_/{id}", link = link_id, id = id);
+                        let link = format!("https://www.reddit.com/comments/{link}/_/{id}", link = &link_id[3..link_id.len()], id = id);
 
                         let vote = match b
                         {
