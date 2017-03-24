@@ -95,7 +95,7 @@ fn main()
         println!("Found {} comments that you voted on", comments.len());
         for comment in comments.into_iter()
         {
-            println!("{:?}: {}", comment.likes, comment.id);
+            println!("{}", comment);
         }
     }
     else if input == "p"
@@ -114,7 +114,7 @@ fn main()
         println!("Found {} posts that you voted on", posts.len());
         for post in posts.into_iter()
         {
-            println!("{:?}: {}", post.likes, post.id);
+            println!("{}", post);
         }
     }
     else
@@ -146,12 +146,12 @@ fn main()
         println!("posts:");
         for post in posts.into_iter()
         {
-            println!("{:?}: {}", post.likes, post.id);
+            println!("{}", post);
         }
         println!("comments:");
         for comment in comments.into_iter()
         {
-            println!("{:?}: {}", comment.likes, comment.id);
+            println!("{}", comment);
         }
     }
 }

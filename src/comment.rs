@@ -189,3 +189,20 @@ impl Comment
         Ok(comments)
     }
 }
+
+use std::fmt;
+
+impl fmt::Display for Comment
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        let link = format!("https://www.reddit.com/comments/{link_id}/_/{id}", link_id = &self.link_id[3..self.link_id.len()], id = self.id);
+        
+        match self.likes
+        {
+            Some(true) => write!(f, "up vote   | {}", link),
+            Some(false) => write!(f, "down vote | {}", link),
+            None => write!(f, "no vote   | {}", link)
+        }
+    }
+}

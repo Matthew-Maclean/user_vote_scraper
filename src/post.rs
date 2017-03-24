@@ -190,3 +190,18 @@ impl Post
         Ok(posts)
     }
 }
+
+use std::fmt;
+
+impl fmt::Display for Post
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        match self.likes
+        {
+            Some(true) => write!(f, "up vote   | {}", self.permalink),
+            Some(false) => write!(f, "down vote | {}", self.permalink),
+            None => write!(f, "no vote   | {}", self.permalink)
+        }
+    }
+}
