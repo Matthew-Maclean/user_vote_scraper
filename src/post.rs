@@ -65,7 +65,7 @@ impl Post
             let json = match rustc_serialize::json::Json::from_reader(&mut res)
             {
                 Ok(j) => j,
-                Err(_) => return Err(ScrapeError::JsonError)
+                Err(_) => panic!()
             };
 
             let after_tmp = match json.find("data").and_then(|x| x.find("after")).and_then(|x| x.as_string())
@@ -209,7 +209,7 @@ impl Post
                 Ok(result) => match result
                 {
                     Ok(mut v) => posts.append(&mut v),
-                    Err(e) => return Err(e)
+                    Err(e) => panic!()
                 },
                 Err(_) => return Err(ScrapeError::OtherError)
             }

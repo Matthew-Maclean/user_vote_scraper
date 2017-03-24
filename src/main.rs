@@ -95,7 +95,7 @@ fn main()
         println!("Found {} comments that you voted on", comments.len());
         for comment in comments.into_iter()
         {
-            //println!("{}: {}", comment.vote, comment.link);
+            println!("{:?}: {}", comment.likes, comment.id);
         }
     }
     else if input == "p"
