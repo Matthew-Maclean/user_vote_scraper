@@ -6,6 +6,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 extern crate url;
+extern crate clap;
 
 mod login;
 mod vote;
