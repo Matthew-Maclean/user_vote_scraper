@@ -53,7 +53,14 @@ impl Comment
             h
         };
 
-        let url_base = format!("https://oauth.reddit.com/user/{user}/comments/.json?limit=100", user = user);
+        let url_base = if limit > 100
+        {
+            format!("https://oauth.reddit.com/user/{user}/comments/.json?limit=100", user = user)
+        }
+        else
+        {
+            format!("https://oauth.reddit.com/user/{user}/comments/.json?limit={limit}", user = user, limit=limit)
+        };
 
         let mut count: i32 = 0;
         let mut after: Option<String> = None;
