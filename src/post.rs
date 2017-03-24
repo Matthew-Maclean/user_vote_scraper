@@ -147,7 +147,6 @@ impl Post
 
                 for comment in response.data.children.into_iter()
                 {
-                    println!("mark");
                     if comment.data.likes.is_some()
                     {
                         voted.push(comment.data);
