@@ -1,16 +1,36 @@
 use hyper;
-use rustc_serialize;
+use serde_json;
 
 use std::thread;
 
 use vote::Vote;
 use scrape_error::ScrapeError;
 
-#[derive(Clone)]
+#[derive(Deserialize)]
+struct PostResponse
+{
+    data: PostListing,
+}
+
+#[derive(Deserialize)]
+struct PostListing
+{
+    children: Vec<PostWrapper>,
+    after: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PostWrapper
+{
+    data: Post
+}
+
+#[derive(Deserialize)]
 pub struct Post
 {
-    pub link: String,
-    pub vote: Vote
+    pub id: String,
+    pub likes: Option<bool>,
+    pub permalink: String,
 }
 
 impl Post
@@ -57,86 +77,11 @@ impl Post
                 url_base.clone()
             };
 
-            let mut res = match client.get(&url).headers(headers.clone()).send()
+            let res = match client.get(&url).headers(headers.clone()).send()
             {
                 Ok(r) => r,
                 Err(_) => return Err(ScrapeError::SendError)
             };
-            let json = match rustc_serialize::json::Json::from_reader(&mut res)
-            {
-                Ok(j) => j,
-                Err(_) => panic!()
-            };
-
-            let after_tmp = match json.find("data").and_then(|x| x.find("after")).and_then(|x| x.as_string())
-            {
-                Some(s) => Some(s.to_owned()),
-                None => None
-            };
-
-            println!("after_tmp: {:?}", after_tmp);
-
-            let handle = thread::spawn(move ||
-            {
-                let mut voted = Vec::new();
-
-                let posts = match json.find("data").and_then(|x| x.find("children")).and_then(|x| x.as_array())
-                {
-                    Some(c) => c.to_owned(),
-                    None => return Err(ScrapeError::JsonError)
-                };
-
-                for post in posts.into_iter()
-                {
-                    if let Some(b) = post.find("data").and_then(|x| x.find("likes")).and_then(|x| x.as_boolean())
-                    {
-                        let link = match post.find("data").and_then(|x| x.find("permalink")).and_then(|x| x.as_string())
-                        {
-                            Some(s) => s.to_owned(),
-                            None => return Err(ScrapeError::JsonError)
-                        };
-
-                        let vote = match b
-                        {
-                            true => Vote::Up,
-                            false => Vote::Down
-                        };
-
-                        voted.push(Post
-                        {
-                            link: link,
-                            vote: vote
-                        });
-                    }
-                }
-                Ok(voted)
-            });
-
-            threads.push(handle);
-
-            if let None = after_tmp
-            {
-                break;
-            }
-
-            if let Some(prev_id) = after
-            {
-                if let Some(new_id) = after_tmp
-                {
-                    if prev_id == new_id
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        after = Some(new_id);
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
 
             let remaining = match res.headers.get_raw("X-Ratelimit-Remaining")
             {
@@ -164,36 +109,67 @@ impl Post
                 },
                 None => return Err(ScrapeError::LimitHeaderError)
             };
+            
+            let reset = match res.headers.get_raw("X-Ratelimit-Reset")
+            {
+                Some(bytes_slice) =>
+                {
+                    if bytes_slice.len() == 0
+                    {
+                        return Err(ScrapeError::LimitHeaderError)
+                    }
+                    let bytes = bytes_slice[0].clone();
+
+                    let string = match String::from_utf8(bytes)
+                    {
+                        Ok(s) => s,
+                        Err(_) => return Err(ScrapeError::ResetHeaderError)
+                    };
+
+                    let num = match string.parse::<f64>()
+                    {
+                        Ok(n) => n,
+                        Err(_) => return Err(ScrapeError::ResetHeaderError)
+                    };
+
+                    num
+                },
+                None => return Err(ScrapeError::ResetHeaderError)
+            };
+
+            let response = serde_json::from_reader::<_, PostResponse>(res)?;
+
+            let new_after = response.data.after.clone();
+
+            let handle = thread::spawn(move ||
+            {
+                let mut voted = Vec::new();
+
+                for comment in response.data.children.into_iter()
+                {
+                    println!("mark");
+                    if comment.data.likes.is_some()
+                    {
+                        voted.push(comment.data);
+                    }
+                }
+                voted
+            });
+
+            threads.push(handle);
+
+            match new_after
+            {
+                Some(new_id) => match after
+                {
+                    Some(ref old_id) if &new_id == old_id => break,
+                    _ => after = Some(new_id)
+                },
+                None => break
+            }
 
             if remaining < 2.0
             {
-                let reset = match res.headers.get_raw("X-Ratelimit-Reset")
-                {
-                    Some(bytes_slice) =>
-                    {
-                        if bytes_slice.len() == 0
-                        {
-                            return Err(ScrapeError::LimitHeaderError)
-                        }
-                        let bytes = bytes_slice[0].clone();
-
-                        let string = match String::from_utf8(bytes)
-                        {
-                            Ok(s) => s,
-                            Err(_) => return Err(ScrapeError::ResetHeaderError)
-                        };
-
-                        let num = match string.parse::<f64>()
-                        {
-                            Ok(n) => n,
-                            Err(_) => return Err(ScrapeError::ResetHeaderError)
-                        };
-
-                        num
-                    },
-                    None => return Err(ScrapeError::ResetHeaderError)
-                };
-
                 thread::sleep(::std::time::Duration::from_secs(reset as u64));
             }
 
@@ -206,11 +182,7 @@ impl Post
         {
             match thread.join()
             {
-                Ok(result) => match result
-                {
-                    Ok(mut v) => posts.append(&mut v),
-                    Err(e) => panic!()
-                },
+                Ok(mut v) => posts.append(&mut v),
                 Err(_) => return Err(ScrapeError::OtherError)
             }
         }

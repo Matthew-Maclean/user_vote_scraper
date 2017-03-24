@@ -114,7 +114,7 @@ fn main()
         println!("Found {} posts that you voted on", posts.len());
         for post in posts.into_iter()
         {
-            println!("{}: {}", post.vote, post.link);
+            println!("{:?}: {}", post.likes, post.id);
         }
     }
     else
@@ -146,12 +146,12 @@ fn main()
         println!("posts:");
         for post in posts.into_iter()
         {
-            println!("{}: {}", post.vote, post.link);
+            println!("{:?}: {}", post.likes, post.id);
         }
         println!("comments:");
         for comment in comments.into_iter()
         {
-            //println!("{}: {}", comment.vote, comment.link);
+            println!("{:?}: {}", comment.likes, comment.id);
         }
     }
 }

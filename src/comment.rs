@@ -148,6 +148,8 @@ impl Comment
                 voted
             });
 
+            threads.push(handle);
+
             match new_after
             {
                 Some(new_id) => match after
@@ -157,8 +159,6 @@ impl Comment
                 },
                 None => break
             }
-
-            threads.push(handle);
 
             if remaining < 2.0
             {
