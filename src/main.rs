@@ -1,6 +1,10 @@
 extern crate hyper;
 extern crate hyper_native_tls;
 extern crate rustc_serialize;
+extern crate serde;
+extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 extern crate url;
 
 mod login;
@@ -91,7 +95,7 @@ fn main()
         println!("Found {} comments that you voted on", comments.len());
         for comment in comments.into_iter()
         {
-            println!("{}: {}", comment.vote, comment.link);
+            //println!("{}: {}", comment.vote, comment.link);
         }
     }
     else if input == "p"
@@ -147,7 +151,7 @@ fn main()
         println!("comments:");
         for comment in comments.into_iter()
         {
-            println!("{}: {}", comment.vote, comment.link);
+            //println!("{}: {}", comment.vote, comment.link);
         }
     }
 }

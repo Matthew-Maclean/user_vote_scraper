@@ -1,16 +1,31 @@
 use hyper;
 use rustc_serialize;
+use serde_json;
 
 use std::thread;
 
 use vote::Vote;
 use scrape_error::ScrapeError;
 
-#[derive(Clone)]
+#[derive(Deserialize)]
+pub struct CommentResponse
+{
+    data: CommentListing,
+}
+
+#[derive(Deserialize)]
+pub struct CommentListing
+{
+    children: Vec<Comment>,
+    after: String,
+}
+
+#[derive(Deserialize)]
 pub struct Comment
 {
-    pub link: String,
-    pub vote: Vote,
+    id: String,
+    link_id: String,
+    likes: Option<bool>,
 }
 
 impl Comment
@@ -101,11 +116,11 @@ impl Comment
                             false => Vote::Down
                         };
 
-                        voted.push(Comment
+                        /*voted.push(Comment
                         {
                             link: link,
                             vote: vote
-                        });
+                        });*/
                     }
                 }
                 Ok(voted)
