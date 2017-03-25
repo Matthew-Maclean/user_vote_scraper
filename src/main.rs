@@ -59,17 +59,6 @@ fn main()
                 "links" | "ids" | "api" | "none" => Ok(()),
                 _ => Err("the only valid values are 'links', 'ids', 'api', and 'none'".to_owned())
             }))
-        .arg(clap::Arg::with_name("format")
-            .short("f")
-            .long("format")
-            .help("the output format: list = newline separated list, csv = comma separated list")
-            .takes_value(true)
-            .default_value("list")
-            .validator(|s| match s.as_str()
-            {
-                "list" | "csv" => Ok(()),
-                _ => Err("the only valid valuds are 'list' and 'csv'".to_owned())
-            }))
         .arg(clap::Arg::with_name("code")
             .long("code")
             .help("if you already have the code from the OAuth2 redirect, this will skip the login process")
@@ -142,9 +131,72 @@ fn main()
     {
         None
     };
+
+    let output = match matches.value_of("output").unwrap()
+    {
+        "links" =>
+        {
+            let mut o = Vec::new();
+            if let &Some(ref c) = &comments
+            {
+                o.append(&mut c.iter().map(comment::Comment::to_string).collect());
+            }
+            if let &Some(ref p) = &posts
+            {
+                o.append(&mut p.iter().map(|x| x.permalink.clone()).collect());
+            }
+            o
+        },
+        "ids" =>
+        {
+            let mut o = Vec::new();
+            if let &Some(ref c) = &comments
+            {
+                o.append(&mut c.iter().map(|x| x.id.to_string()).collect());
+            }
+            if let &Some(ref p) = &posts
+            {
+                o.append(&mut p.iter().map(|x| x.id.to_string()).collect());
+            }
+            o
+        },
+        "api" =>
+        {
+            let mut o = Vec::new();
+            if let &Some(ref c) = &comments
+            {
+                o.append(&mut generate_comment_api_links(c));
+            }
+            if let &Some(ref p) = &posts
+            {
+                o.append(&mut generate_post_api_links(p));
+            }
+            o
+        },
+        "none" => Vec::new(),
+        _ =>
+        {
+            println!("Error: invalid output format");
+            return;
+        }
+    };
+
+    if matches.is_present("metrics")
+    {
+        if let Some(c) = comments
+        {
+            println!("{}", generate_comment_metrics(&c));
+        }
+        if let Some(p) = posts
+        {
+            println!("{}", generate_post_metrics(&p));
+        }
+    }
+
+    println!("{}", output.join("\n"));
 }
 
-fn generate_comment_api_links(comments: Vec<comment::Comment>) -> Vec<String>
+fn generate_comment_api_links(comments: &Vec<comment::Comment>) -> Vec<String>
 {
     let mut lists = if comments.len() <= 100
     {
@@ -171,7 +223,7 @@ fn generate_comment_api_links(comments: Vec<comment::Comment>) -> Vec<String>
     lists.into_iter().map(|x| format!("https://reddit.com/api/info?id={}", x.join(","))).collect()
 }
 
-fn generate_post_api_links(posts: Vec<post::Post>) -> Vec<String>
+fn generate_post_api_links(posts: &Vec<post::Post>) -> Vec<String>
 {
     let mut lists = if posts.len() <= 100
     {
