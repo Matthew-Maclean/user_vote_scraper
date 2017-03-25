@@ -9,7 +9,6 @@ extern crate url;
 extern crate clap;
 
 mod login;
-mod vote;
 mod comment;
 mod post;
 mod scrape_error;
@@ -198,7 +197,7 @@ fn main()
 
 fn generate_comment_api_links(comments: &Vec<comment::Comment>) -> Vec<String>
 {
-    let mut lists = if comments.len() <= 100
+    let lists = if comments.len() <= 100
     {
         vec![comments.iter().map(|x| format!("t1_{}", x.id)).collect()]
     }
@@ -225,7 +224,7 @@ fn generate_comment_api_links(comments: &Vec<comment::Comment>) -> Vec<String>
 
 fn generate_post_api_links(posts: &Vec<post::Post>) -> Vec<String>
 {
-    let mut lists = if posts.len() <= 100
+    let lists = if posts.len() <= 100
     {
         vec![posts.iter().map(|x| format!("t3_{}", x.id)).collect()]
     }

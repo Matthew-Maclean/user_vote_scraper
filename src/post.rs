@@ -3,7 +3,6 @@ use serde_json;
 
 use std::thread;
 
-use vote::Vote;
 use scrape_error::ScrapeError;
 
 #[derive(Deserialize)]
